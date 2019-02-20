@@ -1,0 +1,13 @@
+3.1.1) Il est préférable de parcourir en profondeur afin de visiter moins souvent les noeuds.
+Dans un parcours en profondeur quand une branche est finie d'explorer on y retourne plus, contrairement à un parcours en largeur.
+
+3.1.2) L'agent s'arrête quand il rencontre un noeud dum (le puit / "well") ou quand il a explorer toute la carte.
+
+3.1.3) Liste des observables (Gold, Diamond, Well) et leur position
+
+Liste de tableaux à deux éléments [observable,position]
+OU
+Dictionnaire : Map<String,int[]> {o1: [p1,p2]}
+
+Graphe : Liste d'adjacence
+Map<String,String[]>

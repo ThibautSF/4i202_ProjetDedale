@@ -1,9 +1,11 @@
 package eu.su.mas.dedaleEtu.mas.behaviours;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import dataStructures.tuple.Couple;
@@ -26,16 +28,19 @@ import jade.core.behaviours.SimpleBehaviour;
  * @author hc
  *
  */
-public class ExploSoloBehaviour extends SimpleBehaviour {
+public class ExploMultiBehaviour extends SimpleBehaviour {
 
-	private static final long serialVersionUID = 8567689731496787661L;
+	private static final long serialVersionUID = 1297041785790783610L;
 
 	private boolean finished = false;
+	
+	private ReceiveMessageBehaviour messageReceiver;
 
 	/**
 	 * Current knowledge of the agent regarding the environment
 	 */
 	private MapRepresentation myMap;
+	private Map<String,String[]> myGraph;
 
 	/**
 	 * Nodes known but not yet visited
@@ -47,18 +52,27 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 	private Set<String> closedNodes;
 
 
-	public ExploSoloBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap) {
+	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, Map<String,String[]> myGraph) {
 		super(myagent);
 		this.myMap=myMap;
+		this.myGraph=myGraph;
 		this.openNodes=new ArrayList<String>();
 		this.closedNodes=new HashSet<String>();
 	}
 
 	@Override
 	public void action() {
-
+		
+		if(this.messageReceiver==null) {
+			this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
+			this.myAgent.addBehaviour(this.messageReceiver);
+		}
+		
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
+		
+		if(this.myGraph==null)
+			this.myGraph = new HashMap<>();
 		
 		//0) Retrieve the current position
 		String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
@@ -75,36 +89,65 @@ public class ExploSoloBehaviour extends SimpleBehaviour {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
 
 			//1) remove the current node from openlist and add it to closedNodes.
 			this.closedNodes.add(myPosition);
 			this.openNodes.remove(myPosition);
 
 			this.myMap.addNode(myPosition);
+			this.myGraph.put(myPosition, new String[1]);
+			
+			
 
 			//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
 			String nextNode=null;
 			Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
+			List<String> childs = new ArrayList<>();
 			while(iter.hasNext()){
 				String nodeId=iter.next().getLeft();
+				
 				if (!this.closedNodes.contains(nodeId)){
 					if (!this.openNodes.contains(nodeId)){
 						this.openNodes.add(nodeId);
 						this.myMap.addNode(nodeId, MapAttribute.open);
-						this.myMap.addEdge(myPosition, nodeId);	
+						this.myMap.addEdge(myPosition, nodeId);
 					}else{
 						//the node exist, but not necessarily the edge
 						this.myMap.addEdge(myPosition, nodeId);
 					}
+					
+					childs.add(nodeId);
+					
 					if (nextNode==null) nextNode=nodeId;
 				}
+			}
+			
+			this.myGraph.put(myPosition, (String[]) childs.toArray());
+			
+			//2.5) getMessage
+			
+			if(messageReceiver.done()) {
+				String msg = messageReceiver.getMessage();
+				if(msg!="") {
+					System.out.println(this.myAgent.getLocalName()+" -- pos received: "+msg);
+					
+					//TODO on a reçu un hello (le vérifier) → send myGraph
+					
+					this.closedNodes.add(msg);
+					this.openNodes.remove(msg);
+					
+					this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
+					this.myAgent.addBehaviour(this.messageReceiver);
+				}
+				
 			}
 
 			//3) while openNodes is not empty, continues.
 			if (this.openNodes.isEmpty()){
 				//Explo finished
 				finished=true;
-				System.out.println("Exploration successufully done, behaviour removed.");
+				System.out.println(this.myAgent.getLocalName()+" : Exploration successufully done, behaviour removed.");
 			}else{
 				//4) select next move.
 				//4.1 If there exist one open node directly reachable, go for it,
