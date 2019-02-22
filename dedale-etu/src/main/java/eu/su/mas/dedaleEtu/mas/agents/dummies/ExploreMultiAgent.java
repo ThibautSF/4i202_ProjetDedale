@@ -1,8 +1,8 @@
 package eu.su.mas.dedaleEtu.mas.agents.dummies;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedale.mas.agent.behaviours.startMyBehaviours;
@@ -25,7 +25,7 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	
 	private static final long serialVersionUID = -4650860467651727307L;
 	private MapRepresentation myMap;
-	private Map<String,String[]> myGraph;
+	private HashMap<String,String[]> myGraph;
 	
 
 	/**

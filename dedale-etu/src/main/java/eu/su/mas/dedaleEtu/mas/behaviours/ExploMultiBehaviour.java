@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import dataStructures.tuple.Couple;
@@ -14,6 +13,8 @@ import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 
 
 /**
@@ -40,7 +41,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	 * Current knowledge of the agent regarding the environment
 	 */
 	private MapRepresentation myMap;
-	private Map<String,String[]> myGraph;
+	private HashMap<String,String[]> myGraph;
 
 	/**
 	 * Nodes known but not yet visited
@@ -52,7 +53,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	private Set<String> closedNodes;
 
 
-	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, Map<String,String[]> myGraph) {
+	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, HashMap<String,String[]> myGraph) {
 		super(myagent);
 		this.myMap=myMap;
 		this.myGraph=myGraph;
@@ -103,7 +104,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
 			String nextNode=null;
 			Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
-			List<String> childs = new ArrayList<>();
+			List<String> childs = new ArrayList<String>();
 			while(iter.hasNext()){
 				String nodeId=iter.next().getLeft();
 				
@@ -123,22 +124,55 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 				}
 			}
 			
-			this.myGraph.put(myPosition, (String[]) childs.toArray());
+			this.myGraph.put(myPosition, childs.toArray(new String[0]));
 			
-			//2.5) getMessage
-			
-			if(messageReceiver.done()) {
-				String msg = messageReceiver.getMessage();
-				if(msg!="") {
-					System.out.println(this.myAgent.getLocalName()+" -- pos received: "+msg);
+			//2.5) getMessage → answer messages in mailbox
+			System.out.println(this.myAgent.getLocalName()+" : I have "+messageReceiver.nbWaiting()+" messages in mailbox");
+			while(messageReceiver.hasMessage()) {
+				ACLMessage message = messageReceiver.getFirstMessage();
+				if(message!=null) {
+					switch (message.getProtocol()) {
+					case "PositionSending":
+						/*
+						 * TODO
+						 * 1) get message sender
+						 * 2) check if robot in team and robot type
+						 * 3) send message to sender with map
+						 */
+						message.getContent();
+						message.getSender();
+						
+						System.out.println(this.myAgent.getLocalName()+" : The message ("+message.getPostTimeStamp()+") from "+message.getSender()+" is \""+message.getContent()+"\"");
+						
+						break;
 					
-					//TODO on a reçu un hello (le vérifier) → send myGraph
+					case "MapSending":
+						/*
+						 * TODO
+						 * 1) get HashMap object
+						 * For all node in the map
+						 *   2) update this.myGraph
+						 *   3) update this.myMap
+						 *   4) remove from openNodes and add to closedNodes
+						 */
+						try {
+							message.getContentObject();
+						} catch (UnreadableException e) {
+							e.printStackTrace();
+						}
+						break;
+
+					default:
+						break;
+					}
 					
-					this.closedNodes.add(msg);
-					this.openNodes.remove(msg);
+					//System.out.println(this.myAgent.getLocalName()+" -- pos received: "+msg);
 					
-					this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
-					this.myAgent.addBehaviour(this.messageReceiver);
+					//this.closedNodes.add(msg);
+					//this.openNodes.remove(msg);
+					
+					//this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
+					//this.myAgent.addBehaviour(this.messageReceiver);
 				}
 				
 			}

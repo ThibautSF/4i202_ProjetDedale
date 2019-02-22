@@ -41,6 +41,7 @@ public class SayHello extends TickerBehaviour{
 			//System.out.println("Agent "+this.myAgent.getLocalName()+ " is trying to reach its friends");
 			msg.setContent(myPosition);
 			
+			//TODO get team list ! → constructor
 			if(this.myAgent.getLocalName().equals("Explo1")) {
 				msg.addReceiver(new AID("Explo2",AID.ISLOCALNAME));
 			} else {

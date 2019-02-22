@@ -1,7 +1,7 @@
 package eu.su.mas.dedaleEtu.mas.behaviours;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.HashMap;
 
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import jade.core.AID;
@@ -19,16 +19,18 @@ public class CommunicationBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = -2058134622078521998L;
 	
 	private boolean finished=false;
-	private Map<String,String[]> graph;
+	private HashMap<String,String[]> graph;
+	private String targetAgentName;
 
 	/**
 	 * An agent tries to contact its friend and to give him its current position
 	 * @param myagent the agent who posses the behaviour
 	 *  
 	 */
-	public CommunicationBehaviour (final Agent myagent, Map<String,String[]> graph) {
+	public CommunicationBehaviour (final Agent myagent, HashMap<String,String[]> graph, String targetAgentName) {
 		super(myagent);
 		this.graph = graph;
+		this.targetAgentName = targetAgentName;
 	}
 
 	@Override
@@ -46,11 +48,7 @@ public class CommunicationBehaviour extends SimpleBehaviour {
 				//TODO serialize Map
 				msg.setContentObject(graph);
 				
-				if(this.myAgent.getLocalName().equals("Explo1")) {
-					msg.addReceiver(new AID("Explo2",AID.ISLOCALNAME));
-				} else {
-					msg.addReceiver(new AID("Explo1",AID.ISLOCALNAME));
-				}
+				msg.addReceiver(new AID(this.targetAgentName,AID.ISLOCALNAME));
 				
 				//Mandatory to use this method (it takes into account the environment to decide if someone is reachable or not)
 				((AbstractDedaleAgent)this.myAgent).sendMessage(msg);

@@ -1,10 +1,12 @@
 package eu.su.mas.dedaleEtu.mas.behaviours;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import jade.core.Agent;
-import jade.core.behaviours.SimpleBehaviour;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
 
 /**
  * This behaviour is a one Shot.
@@ -13,12 +15,12 @@ import jade.lang.acl.UnreadableException;
  * @author Cédric Herpson
  *
  */
-public class ReceiveMessageBehaviour extends SimpleBehaviour{
+public class ReceiveMessageBehaviour extends CyclicBehaviour {
 
 	private static final long serialVersionUID = 9088209402507795289L;
 
-	private String position="";
-	private boolean finished=false;
+	private Queue<ACLMessage> mailBox;
+	//private boolean finished = false;
 
 	/**
 	 * 
@@ -28,6 +30,7 @@ public class ReceiveMessageBehaviour extends SimpleBehaviour{
 	 */
 	public ReceiveMessageBehaviour(final Agent myagent) {
 		super(myagent);
+		this.mailBox = new LinkedList<ACLMessage>();
 	}
 
 
@@ -37,7 +40,11 @@ public class ReceiveMessageBehaviour extends SimpleBehaviour{
 
 		final ACLMessage msg = this.myAgent.receive(msgTemplate);
 		if (msg != null) {
+			this.mailBox.add(msg);
 			//System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContent());
+			/* 
+			 * TODO Se fait dans le comportement général
+			 * 
 			switch (msg.getProtocol()) {
 			case "PositionSending":
 				this.position = msg.getContent();
@@ -54,25 +61,30 @@ public class ReceiveMessageBehaviour extends SimpleBehaviour{
 			default:
 				break;
 			}
+			*/
 			
-			this.finished=true;
-		}else{
-			block();// the behaviour goes to sleep until the arrival of a new message in the agent's Inbox.
+			//this.finished=true;
 		}
+		
+		block(); // the behaviour goes to sleep until the arrival of a new message in the agent's Inbox.
 	}
 	
-	public String getMessage() {
-		return position;
+	public boolean hasMessage() {
+		return !mailBox.isEmpty();
+	}
+	
+	public ACLMessage getFirstMessage() {
+		return mailBox.poll();
+	}
+	
+	public int nbWaiting() {
+		return mailBox.size();
 	}
 
+	/*
 	public boolean done() {
 		return finished;
 	}
+	*/
 	
-	public void redo() {
-		this.position = "";
-		this.finished = false;
-		this.restart();
-	}
-
 }
