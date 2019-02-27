@@ -23,7 +23,7 @@ import jade.lang.acl.UnreadableException;
  * 
  * When all the nodes around him are visited, the agent randomly select an open node and go there to restart its dfs.</br> 
  * This (non optimal) behaviour is done until all nodes are explored. </br> 
- * 
+ * ArrayList
  * Warning, this behaviour does not save the content of visited nodes, only the topology.</br> 
  * Warning, this behaviour is a solo exploration and does not take into account the presence of other agents (or well) and indefinitely tries to reach its target node
  * @author hc
@@ -41,7 +41,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	 * Current knowledge of the agent regarding the environment
 	 */
 	private MapRepresentation myMap;
-	private HashMap<String,String[]> myGraph;
+	private HashMap<String,HashSet<String>> myGraph;
 
 	/**
 	 * Nodes known but not yet visited
@@ -53,7 +53,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	private Set<String> closedNodes;
 
 
-	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, HashMap<String,String[]> myGraph) {
+	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, HashMap<String,HashSet<String>> myGraph) {
 		super(myagent);
 		this.myMap=myMap;
 		this.myGraph=myGraph;
@@ -97,14 +97,14 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			this.openNodes.remove(myPosition);
 
 			this.myMap.addNode(myPosition);
-			this.myGraph.put(myPosition, new String[1]);
+			this.myGraph.put(myPosition, new HashSet<String>());
 			
 			
 
 			//2) get the surrounding nodes and, if not in closedNodes, add them to open nodes.
 			String nextNode=null;
 			Iterator<Couple<String, List<Couple<Observation, Integer>>>> iter=lobs.iterator();
-			List<String> childs = new ArrayList<String>();
+			//List<String> childs = new HashSet<String>();
 			while(iter.hasNext()){
 				String nodeId=iter.next().getLeft();
 				
@@ -118,13 +118,15 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 						this.myMap.addEdge(myPosition, nodeId);
 					}
 					
-					childs.add(nodeId);
+					//childs.add(nodeId);
+					this.myGraph.get(myPosition).add(nodeId);
 					
 					if (nextNode==null) nextNode=nodeId;
 				}
 			}
 			
-			this.myGraph.put(myPosition, childs.toArray(new String[0]));
+			//this.myGraph.put(myPosition, childs);
+			
 			
 			//2.5) getMessage → answer messages in mailbox
 			System.out.println(this.myAgent.getLocalName()+" : I have "+messageReceiver.nbWaiting()+" messages in mailbox");
