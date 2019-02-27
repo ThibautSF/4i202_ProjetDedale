@@ -3,7 +3,7 @@ package eu.su.mas.dedaleEtu.mas.behaviours;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import jade.core.AID;
 import jade.core.Agent;
-import jade.core.behaviours.TickerBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 
 /**
@@ -11,12 +11,13 @@ import jade.lang.acl.ACLMessage;
  * @author hc
  *
  */
-public class SayHello extends TickerBehaviour{
+public class SayHello extends SimpleBehaviour{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2058134622078521998L;
+	private boolean finished =false;
 
 	/**
 	 * An agent tries to contact its friend and to give him its current position
@@ -24,12 +25,12 @@ public class SayHello extends TickerBehaviour{
 	 *  
 	 */
 	public SayHello (final Agent myagent) {
-		super(myagent, 3000);
+		super(myagent);
 		//super(myagent);
 	}
 
 	@Override
-	public void onTick() {
+	public void action() {
 		String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 
 		//A message is defined by : a performative, a sender, a set of receivers, (a protocol),(a content (and/or contentOBject))
@@ -52,7 +53,16 @@ public class SayHello extends TickerBehaviour{
 
 			//Mandatory to use this method (it takes into account the environment to decide if someone is reachable or not)
 			((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+			this.finished =true;
 		}
+	}
+
+
+
+	@Override
+	public boolean done() {
+		// TODO Stub de la méthode généré automatiquement
+		return this.finished;
 	}
 	
 }

@@ -1,4 +1,4 @@
-package eu.su.mas.dedaleEtu.mas.behaviours;
+package eu.su.mas.dedaleEtu.mas.behaviours.explorer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,11 +10,10 @@ import java.util.Set;
 import dataStructures.tuple.Couple;
 import eu.su.mas.dedale.env.Observation;
 import eu.su.mas.dedale.mas.AbstractDedaleAgent;
+import eu.su.mas.dedaleEtu.mas.behaviours.ReceiveMessageBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
 import jade.core.behaviours.SimpleBehaviour;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.UnreadableException;
 
 
 /**
@@ -63,11 +62,12 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 
 	@Override
 	public void action() {
+		/**
 		
 		if(this.messageReceiver==null) {
 			this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
 			this.myAgent.addBehaviour(this.messageReceiver);
-		}
+		}**/
 		
 		if(this.myMap==null)
 			this.myMap= new MapRepresentation();
@@ -128,57 +128,7 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			//this.myGraph.put(myPosition, childs);
 			
 			
-			//2.5) getMessage → answer messages in mailbox
-			System.out.println(this.myAgent.getLocalName()+" : I have "+messageReceiver.nbWaiting()+" messages in mailbox");
-			while(messageReceiver.hasMessage()) {
-				ACLMessage message = messageReceiver.getFirstMessage();
-				if(message!=null) {
-					switch (message.getProtocol()) {
-					case "PositionSending":
-						/*
-						 * TODO
-						 * 1) get message sender
-						 * 2) check if robot in team and robot type
-						 * 3) send message to sender with map
-						 */
-						message.getContent();
-						message.getSender();
-						
-						System.out.println(this.myAgent.getLocalName()+" : The message ("+message.getPostTimeStamp()+") from "+message.getSender()+" is \""+message.getContent()+"\"");
-						
-						break;
-					
-					case "MapSending":
-						/*
-						 * TODO
-						 * 1) get HashMap object
-						 * For all node in the map
-						 *   2) update this.myGraph
-						 *   3) update this.myMap
-						 *   4) remove from openNodes and add to closedNodes
-						 */
-						try {
-							message.getContentObject();
-						} catch (UnreadableException e) {
-							e.printStackTrace();
-						}
-						break;
-
-					default:
-						break;
-					}
-					
-					//System.out.println(this.myAgent.getLocalName()+" -- pos received: "+msg);
-					
-					//this.closedNodes.add(msg);
-					//this.openNodes.remove(msg);
-					
-					//this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
-					//this.myAgent.addBehaviour(this.messageReceiver);
-				}
-				
-			}
-
+			
 			//3) while openNodes is not empty, continues.
 			if (this.openNodes.isEmpty()){
 				//Explo finished

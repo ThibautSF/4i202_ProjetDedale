@@ -315,9 +315,9 @@ public class Principal {
 		ag=createNewDedaleAgent(c, agentName, ExploreMultiAgent.class.getName(), entityParameters2);
 		agentList.add(ag);
 		
-		/*********
-		 * AGENT Explo2
-		 *********
+	
+		 //AGENT Explo2
+	
 		//1) Get the container where the agent will appear
 		c = containerList.get(ConfigurationFile.LOCAL_CONTAINER2_NAME);
 		Assert.assertNotNull("This container does not exist",c);
