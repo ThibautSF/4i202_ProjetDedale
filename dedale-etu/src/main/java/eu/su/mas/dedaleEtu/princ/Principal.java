@@ -49,7 +49,6 @@ public class Principal {
 			//3) launch agents
 			startAgents(agentList);
 		}else{
-			
 			//We only have to create the local container and our agents
 
 			//1') If a distant platform already exist and you want to create and connect your container to it
