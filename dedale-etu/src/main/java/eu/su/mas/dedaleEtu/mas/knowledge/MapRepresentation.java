@@ -96,6 +96,11 @@ public class MapRepresentation implements Serializable {
 		}
 		
 	}
+	
+	public String getNode(String idNode) {
+		
+		return this.g.getNode(idNode).getId();
+	}
 
 	/**
 	 * Compute the shortest Path from idFrom to IdTo. The computation is currently not very efficient

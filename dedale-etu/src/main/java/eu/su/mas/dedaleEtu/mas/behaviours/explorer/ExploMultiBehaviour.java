@@ -13,6 +13,7 @@ import eu.su.mas.dedale.mas.AbstractDedaleAgent;
 import eu.su.mas.dedaleEtu.mas.behaviours.ReceiveMessageBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation.MapAttribute;
+import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 
 
@@ -52,8 +53,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 	private Set<String> closedNodes;
 
 
-	public ExploMultiBehaviour(final AbstractDedaleAgent myagent, MapRepresentation myMap, HashMap<String,HashSet<String>> myGraph) {
-		super(myagent);
+	public ExploMultiBehaviour(final Agent myAgent, MapRepresentation myMap, HashMap<String,HashSet<String>> myGraph) {
+		super(myAgent);
 		this.myMap=myMap;
 		this.myGraph=myGraph;
 		this.openNodes=new ArrayList<String>();

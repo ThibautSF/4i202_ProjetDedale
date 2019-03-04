@@ -30,16 +30,19 @@ public class ReceiveMessageBehaviour extends CyclicBehaviour {
 	 */
 	public ReceiveMessageBehaviour(final Agent myagent) {
 		super(myagent);
+		System.out.println("jy suis");
 		this.mailBox = new LinkedList<ACLMessage>();
 	}
 
 
 	public void action() {
 		//1) receive the message
+		
 		final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 
 		final ACLMessage msg = this.myAgent.receive(msgTemplate);
 		if (msg != null) {
+			System.out.println("jy suis");
 			this.mailBox.add(msg);
 			//System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContent());
 			/* 

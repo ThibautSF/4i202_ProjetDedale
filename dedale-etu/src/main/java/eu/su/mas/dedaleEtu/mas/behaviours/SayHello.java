@@ -31,6 +31,7 @@ public class SayHello extends SimpleBehaviour{
 
 	@Override
 	public void action() {
+		System.out.println("je dis coucou");
 		String myPosition=((AbstractDedaleAgent)this.myAgent).getCurrentPosition();
 
 		//A message is defined by : a performative, a sender, a set of receivers, (a protocol),(a content (and/or contentOBject))
@@ -62,7 +63,7 @@ public class SayHello extends SimpleBehaviour{
 	@Override
 	public boolean done() {
 		// TODO Stub de la méthode généré automatiquement
-		return this.finished;
+		return false;
 	}
 	
 }
