@@ -240,6 +240,7 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 
 		List<Behaviour> lb=new ArrayList<Behaviour>();
 		
+		
 		/************************************************
 		 * 
 		 * ADD the behaviours of the Dummy Moving Agent
