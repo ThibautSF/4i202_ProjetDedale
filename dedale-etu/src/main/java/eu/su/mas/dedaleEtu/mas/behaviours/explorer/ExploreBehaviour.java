@@ -34,7 +34,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = 9088209402507795289L;
 	private boolean finished = false;
 	private Graph graph ;
-	private ArrayList<String> chemin;
+	private List<String> chemin;
 	private ArrayList<String> opened ;
 	private int step = 0;
 	private int immo = 0;
@@ -251,7 +251,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
 				}
 			}
 			
-			
+			//this.myGraph.put(myPosition, childs);
 			
 			
 			}
