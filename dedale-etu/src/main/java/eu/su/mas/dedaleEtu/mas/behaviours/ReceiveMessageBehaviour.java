@@ -3,6 +3,7 @@ package eu.su.mas.dedaleEtu.mas.behaviours;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import eu.su.mas.dedaleEtu.mas.agents.dummies.MailBox;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -19,7 +20,7 @@ public class ReceiveMessageBehaviour extends CyclicBehaviour {
 
 	private static final long serialVersionUID = 9088209402507795289L;
 
-	private Queue<ACLMessage> mailBox;
+	private MailBox mailBox;
 	//private boolean finished = false;
 
 	/**
@@ -28,22 +29,28 @@ public class ReceiveMessageBehaviour extends CyclicBehaviour {
 	 * It receives a message tagged with an inform performative, print the content in the console and destroy itlself
 	 * @param myagent
 	 */
-	public ReceiveMessageBehaviour(final Agent myagent) {
+	public ReceiveMessageBehaviour(final Agent myagent,MailBox mailBox) {
 		super(myagent);
 		System.out.println("jy suis");
-		this.mailBox = new LinkedList<ACLMessage>();
+		this.mailBox =mailBox;
 	}
 
 
 	public void action() {
 		//1) receive the message
 		
-		final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+		final MessageTemplate msgIn= MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+		final MessageTemplate msgPr = MessageTemplate.MatchPerformative(ACLMessage.PROPOSE);
+		final MessageTemplate msgT= MessageTemplate.and(msgIn,msgPr);
+		
 
-		final ACLMessage msg = this.myAgent.receive(msgTemplate);
+
+		final ACLMessage msg = this.myAgent.receive(msgT);
+
 		if (msg != null) {
 			System.out.println("jy suis");
-			this.mailBox.add(msg);
+			this.mailBox.addMsg(msg);
+			
 			//System.out.println(this.myAgent.getLocalName()+"<----Result received from "+msg.getSender().getLocalName()+" ,content= "+msg.getContent());
 			/* 
 			 * TODO Se fait dans le comportement général
@@ -72,17 +79,6 @@ public class ReceiveMessageBehaviour extends CyclicBehaviour {
 		block(); // the behaviour goes to sleep until the arrival of a new message in the agent's Inbox.
 	}
 	
-	public boolean hasMessage() {
-		return !mailBox.isEmpty();
-	}
-	
-	public ACLMessage getFirstMessage() {
-		return mailBox.poll();
-	}
-	
-	public int nbWaiting() {
-		return mailBox.size();
-	}
 
 	/*
 	public boolean done() {

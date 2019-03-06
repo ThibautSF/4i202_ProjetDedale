@@ -20,6 +20,7 @@ import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 
 import eu.su.mas.dedaleEtu.mas.agents.dummies.ExploreMultiAgent;
+import eu.su.mas.dedaleEtu.mas.agents.dummies.MailBox;
 import eu.su.mas.dedaleEtu.mas.agents.dummies.Data;
 
 public class InterblocageBehaviour extends SimpleBehaviour{
@@ -29,7 +30,8 @@ public class InterblocageBehaviour extends SimpleBehaviour{
 	private int cptWait = 0;
 	private AID agent ; 
 	private List<String> otherAgentPath ;
-	private List<String> cheminCarrefour ;
+	private ArrayList<String> cheminCarrefour ;
+	private MailBox mailBox;
 	/**
 	 * exit_value : 0 -> Explore
 	 * 				1 -> ExchangeMap
@@ -37,31 +39,15 @@ public class InterblocageBehaviour extends SimpleBehaviour{
 	private int exit_value = 0;
 
 	
-	public InterblocageBehaviour(final AbstractDedaleAgent myagent) {
+	public InterblocageBehaviour(final AbstractDedaleAgent myagent, MailBox mailBox) {
 		super(myagent);
+		this.mailBox=mailBox;
 	}
 	
 	public void setAgent(AID agent) {
 		this.agent = agent;
 	}
-	//TODO
-	/*
-	 * SANS PRISE EN COMPTE DES TRESORS
-	 * state 0 : attente d'un message d'interblocage puis passe en 1
-	 * state 1 : echange des map à tous les agents en interblocage 
-	 * state 2 : -> si regle le conflit, interblocage = false pour les deux
-	 * 			 -> sinon on passe en state 3
-	 * state intermediaire : définition des priorités ?
-	 * state 3 : chacun regarde la plus courte distance à un carrefour
-	 * 			 les agents envoient leur distance à un Agent coordinateur
-	 * 			 le coordinateur décide qui bouge 
-	 * 			 si doit bouger -> state 4
-	 * 			 sinon state 5
-	 * state 4 : on doit bouger : setChemin avec le chemin qu'on a trouvé jusqu'au carrefour
-	 * 			 interblocage = false et on change le interblocage de l'autre agent aussi
-	 * 			 on revient dans Explore
-	 * state 5 : attente jusqu'au changement de interblocage par l'autre et on revient dans Explore
-	 */
+	
 	@Override
 	public void action() {
 		
@@ -71,55 +57,24 @@ public class InterblocageBehaviour extends SimpleBehaviour{
 		switch(state) {
 		
 			case 0 : 
-				//si on a des vieux maps on les efface
-				if(cptWait==0){
-					ACLMessage mapMessage;
-					do{
-						mapMessage = this.myAgent.receive(MessageTemplate.MatchPerformative(ACLMessage.INFORM));
-					}while(mapMessage!=null);
-				}
+				getInterblocageMessage(state);
+			
 				
-				// ATTENTE DU MESSAGE DE L'AGENT EN INTERBLOCAGE AVEC NOUS
-				System.out.println(super.myAgent.getLocalName()+": Je suis en interblocage");
-				
-				//attendre le message de l'agent avec qui on est en interblocage
-				final MessageTemplate msgTemplate = MessageTemplate.MatchPerformative(ACLMessage.PROPOSE);			
-				ACLMessage answer = this.myAgent.receive(msgTemplate);
-				
-				
-				// le message recu contiendra : notre position_la position de l'autre
-				if(answer != null && answer.getContent().equals(((AbstractDedaleAgent)this.myAgent).getCurrentPosition()+"_"+((ExploreMultiAgent)this.myAgent).getChemin().get(0))){
-					
-					agent = answer.getSender(); 
-					cptWait=0;
-					((ExploreMultiAgent)this.myAgent).setInterblocageState(state+3);
-				} else {
-					answer = null;
-					block(1500);
-					cptWait++;
-				}
-				//si temps d'attente trop long on revient à Explore
-				if(cptWait==waitingTime && answer==null){
-					System.out.println("Temps d'attente trop long pour "+this.myAgent.getLocalName()+" qui quitte l'interblocage");
-					((ExploreMultiAgent)this.myAgent).setInterblocage(false);
-				}
 				break ;
 				
-			case 1: //ECHANGE DES GRAPHES
+			case 1:
 				
-//				//TODO: si on a recu un message d'interblocage dans Explore -> initialiser agent
-//				if(!((CleverAgent)this.myAgent).getAgentsNearby().isEmpty()){
-//					agent = ((CleverAgent)this.myAgent).getAgentsNearby().get(0);
-//				}
+				/* TODO
+				 * 1-choisir une priorité(aléatoire) ok 
+				 * 2-agent maitre envoie son chemin à esclave ok 
+				 * 3-esclave recule suivant le chemin de maitre
+				 * 4-si esclave rencontre une alternative il prend l'alternative .
+				 * 5- il laisse passer maitre("je suis passé")
+				 * 6- esclave reprend son chemin
+				 * 
+				 */
 				
-				// on passe directement à l'étape 3 de ExchangeMap car on communique avec l'agent avec qui on est en interblocage
-				System.out.println(this.myAgent.getLocalName()+" en interblocage avec "+agent.getLocalName());
-				//((ExploreMultiAgent)this.myAgent).setCommunicationState(3);
-				ArrayList <AID> list = new ArrayList<AID>(); list.add(agent);
-				((ExploreMultiAgent)this.myAgent).setAgentsNearby(list);
-				((ExploreMultiAgent)this.myAgent).setInterblocageState(state+1);
-				exit_value=1;		
-				break;
+				
 				
 			case 2 : //VOIR SI L'INTERBLOCAGE EST REGLE
 				//regarder les maps voir si le noeud destination n'est plus interessant (SANS TRESOR)
@@ -221,7 +176,7 @@ public class InterblocageBehaviour extends SimpleBehaviour{
 								e.printStackTrace();
 							}
 							
-							cheminCarrefour = carrefour;
+							cheminCarrefour = (ArrayList<String>) carrefour;
 							((ExploreMultiAgent)super.myAgent).setInterblocageState(4);
 						}
 					}
@@ -279,7 +234,7 @@ public class InterblocageBehaviour extends SimpleBehaviour{
 								e.printStackTrace();
 							}
 							
-							cheminCarrefour = carrefour;
+							cheminCarrefour = (ArrayList<String>) carrefour;
 							((ExploreMultiAgent)super.myAgent).setInterblocageState(4);
 						}
 					}
@@ -397,6 +352,99 @@ public class InterblocageBehaviour extends SimpleBehaviour{
 		
 		return idChemin;
 	}
+	
+	public void getInterblocageMessage(int state) {
+		
+		
+
+		// ATTENTE DU MESSAGE DE L'AGENT EN INTERBLOCAGE AVEC NOUS
+		System.out.println(super.myAgent.getLocalName()+": Je suis en interblocage");
+		
+		//attendre le message de l'agent avec qui on est en interblocage
+		
+		if(this.mailBox.hasMessage(true)) {
+		
+		
+		ACLMessage answer = this.mailBox.getFirstMessage(true);
+		
+		
+		// le message recu contiendra : notre position_la position de l'autre
+		if(answer != null && answer.getContent().equals(((AbstractDedaleAgent)this.myAgent).getCurrentPosition()+"_"+((ExploreMultiAgent)this.myAgent).getChemin().get(0))){
+			
+			agent = answer.getSender(); 
+			cptWait=0;
+			((ExploreMultiAgent)this.myAgent).setInterblocageState(state+1);
+		} else {
+			answer = null;
+			block(1500);
+			cptWait++;
+		}
+		//si temps d'attente trop long on gére gollem
+		if(cptWait==waitingTime && answer==null){
+			System.out.println("Temps d'attente trop long pour "+this.myAgent.getLocalName()+" qui quitte l'interblocage");
+			((ExploreMultiAgent)this.myAgent).setInterblocage(false);
+		}
+		}
+		
+		
+		
+	}
+	
+	public void setPriority() {
+		
+		Random r1 = new Random();
+        int n = r1.nextInt(1000000);
+        
+        //envoi msg priorité
+        ACLMessage msg= new ACLMessage(ACLMessage.INFORM);
+        msg.setProtocol("Priorite");
+        msg.setContent(r1.toString());
+        msg.addReceiver(agent);
+        msg.setSender(myAgent.getAID());
+        ((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+      
+        
+	}
+	
+	public void getMessagePriority() {
+		while(this.mailBox.hasMessage()) {
+			ACLMessage message = this.mailBox.getFirstMessage();
+			if(message!=null) {
+				switch (message.getProtocol()) {
+				case "Priorite":
+				
+					ExploreMultiAgent moi= ((ExploreMultiAgent)super.myAgent);
+					int p=Integer.parseInt(message.getContent());
+					if(p<(moi.getPriority())){
+						
+						
+						
+						ACLMessage msg= new ACLMessage(ACLMessage.INFORM);
+				        msg.setProtocol("Maitre");
+				        
+				        try {
+				        msg.setContentObject(moi.getChemin());
+				        }
+				        catch(IOException e) {
+				        	e.printStackTrace();
+				        }
+				        msg.addReceiver(agent);
+				        msg.setSender(myAgent.getAID());
+				        ((AbstractDedaleAgent)this.myAgent).sendMessage(msg);
+				      
+						
+						
+					}
+					
+					System.out.println(this.myAgent.getLocalName()+" : The message ("+message.getPostTimeStamp()+") from "+message.getSender()+" is \""+message.getContent()+"\"");
+					
+					break;
+				}
+			}
+		}
+	}
+	
+	
 	
 	
 	

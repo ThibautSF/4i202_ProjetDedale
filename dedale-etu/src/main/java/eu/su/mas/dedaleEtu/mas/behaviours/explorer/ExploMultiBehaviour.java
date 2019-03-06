@@ -70,8 +70,8 @@ public class ExploMultiBehaviour extends SimpleBehaviour {
 			this.myAgent.addBehaviour(this.messageReceiver);
 		}**/
 		
-		if(this.myMap==null)
-			this.myMap= new MapRepresentation();
+		
+			
 		
 		if(this.myGraph==null)
 			this.myGraph = new HashMap<>();

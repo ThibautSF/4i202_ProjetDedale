@@ -16,7 +16,7 @@ import eu.su.mas.dedaleEtu.mas.behaviours.ReceiveMessageBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.SayHello;
 import eu.su.mas.dedaleEtu.mas.behaviours.treatMessageBehaviour;
 import eu.su.mas.dedaleEtu.mas.behaviours.explorer.ExploMultiBehaviour;
-import eu.su.mas.dedaleEtu.mas.behaviours.explorer.FsmBehaviour;
+
 import eu.su.mas.dedaleEtu.mas.behaviours.explorer.MainBehaviour;
 import eu.su.mas.dedaleEtu.mas.knowledge.MapRepresentation;
 import jade.core.AID;
@@ -41,11 +41,12 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	private static final long serialVersionUID = -4650860467651727307L;
 	private MapRepresentation myMap;
 	private HashMap<String,HashSet<String>> myGraph;
-	private Queue<ACLMessage> mailBox;
+	private MailBox mailBox;
+	private int priorite;
 	
 	
 	//private Graph graph=  new SingleGraph("");
-	private List<String> chemin = new ArrayList<String>();
+	private ArrayList<String> chemin = new ArrayList<String>();
 	private ArrayList<AID> agentsNearby = new ArrayList<AID>();
 	private ArrayList<String> opened = new ArrayList<String>();
 	
@@ -71,6 +72,59 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 	private ArrayList<AID> lastCom= new ArrayList<AID>();
 	
 	
+	
+
+	protected void setup(){
+
+		super.setup();
+		
+
+		List<Behaviour> lb=new ArrayList<Behaviour>();
+		this.myMap= new MapRepresentation();
+		this.myGraph= new HashMap<String,HashSet<String>>();
+		this.mailBox=new MailBox();
+		
+		
+		/************************************************
+		 * 
+		 * ADD the behaviours of the Dummy Moving Agent
+		 * 
+		 ************************************************/
+		
+	
+		
+			ParallelBehaviour comportementparallele = new ParallelBehaviour();
+			MainBehaviour fsm = new MainBehaviour(this,this.myMap,this.myGraph,this.mailBox) ;
+			comportementparallele.addSubBehaviour(fsm);
+		    ReceiveMessageBehaviour rmb=new ReceiveMessageBehaviour(this,this.mailBox);
+		  
+		    comportementparallele.addSubBehaviour(rmb);
+		
+				
+		 
+		    lb.add(comportementparallele);
+	
+		/***
+		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY
+		 */
+		
+		
+		addBehaviour(new startMyBehaviours(this,lb));
+		
+		System.out.println("the  agent "+this.getLocalName()+ " is started");
+
+	}
+	
+	public void setPriority(int i) {
+		this.priorite=i;
+		
+	}
+	
+	public int getPriority() {
+		return this.priorite;
+	}
+	
+	
 	public Graph getGraph() {
 		return (Graph) myMap;
 	}
@@ -79,12 +133,12 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 		this.myMap = (MapRepresentation) graph;
 	}
 
-	public List<String> getChemin() {
+	public ArrayList<String> getChemin() {
 		return chemin;
 	}
 
-	public void setChemin(List<String> chemin) {
-		this.chemin = chemin;
+	public void setChemin(ArrayList<String> chemin2) {
+		this.chemin = chemin2;
 	}
 	
 	public HashMap<AID, ArrayList<String>> getAgentList() {
@@ -233,46 +287,6 @@ public class ExploreMultiAgent extends AbstractDedaleAgent {
 		this.agentToReach = agentToReach;
 	}
 
-	protected void setup(){
-
-		super.setup();
-		
-
-		List<Behaviour> lb=new ArrayList<Behaviour>();
-		
-		
-		/************************************************
-		 * 
-		 * ADD the behaviours of the Dummy Moving Agent
-		 * 
-		 ************************************************/
-		
-		//lb.add(new ExploMultiBehaviour(this,this.myMap,this.myGraph));
-		//lb.add(new SayHello(this));
-		//lb.add(new ReceiveMessageBehaviour(this));
-		//ParallelBehaviour comportementparallele = new ParallelBehaviour();
-		MainBehaviour fsm = new MainBehaviour(this) ;
-		//scomportementparallele.addSubBehaviour(fsm);
-		//ReceiveMessageBehaviour rmb=new ReceiveMessageBehaviour(this);
-		//comportementparallele.addSubBehaviour(rmb);
-		
-			
-
-		
-				
-		lb.add(fsm);
-		//lb.add(comportementparallele);
-	
-		/***
-		 * MANDATORY TO ALLOW YOUR AGENT TO BE DEPLOYED CORRECTLY
-		 */
-		
-		
-		addBehaviour(new startMyBehaviours(this,lb));
-		
-		System.out.println("the  agent "+this.getLocalName()+ " is started");
-
-	}
 	
 	
 	

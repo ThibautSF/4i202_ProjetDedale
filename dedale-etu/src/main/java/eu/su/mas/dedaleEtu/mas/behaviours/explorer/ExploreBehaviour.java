@@ -34,7 +34,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
 	private static final long serialVersionUID = 9088209402507795289L;
 	private boolean finished = false;
 	private Graph graph ;
-	private List<String> chemin;
+	private ArrayList<String> chemin;
 	private ArrayList<String> opened ;
 	private int step = 0;
 	private int immo = 0;
@@ -119,6 +119,15 @@ public class ExploreBehaviour extends SimpleBehaviour {
 		 * rentrer en communication avec lui
 		 * dans interblocage state : 0 -> attente d'un message d'interblocage aussi
 		 */
+		
+		//TODO version td
+		/*
+		 * 1- agent voit qu'il est bloqué
+		 * 2-il envoie un message avec sa position et la position cible
+		 * 3- si il recoie une reponse -> interblocage(a géré)
+		 * 4-sinon si timeout alors gollem 
+		 */
+		
 		if(!((ExploreMultiAgent) this.myAgent).getMoved()){
 			//chemin.add(0,next); //pour conserver le chemin en entier, le noeud bloqué est donc le premier du chemin et destination le dernier
 			
@@ -181,8 +190,7 @@ public class ExploreBehaviour extends SimpleBehaviour {
 			immo = 0;
 		}
 		
-		if(this.myMap==null)
-			this.myMap= new MapRepresentation();
+	
 		
 		if(this.myGraph==null)
 			this.myGraph = new HashMap<>();
@@ -243,19 +251,12 @@ public class ExploreBehaviour extends SimpleBehaviour {
 				}
 			}
 			
-			//this.myGraph.put(myPosition, childs);
+			
 			
 			
 			}
 
-//			System.out.println("noeuds ouverts: "+opened.toString());
-			
-			//Little pause to allow you to follow what is going on
-//			try {
-//				System.out.println("Press a key to allow the agent "+this.myAgent.getLocalName() +" to execute its next move");
-//				System.in.read();
-//			} catch (IOException e) {
-//				e.printStackTrace();
+//			
 //			}
 
 			block(1000);

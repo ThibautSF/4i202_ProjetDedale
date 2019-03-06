@@ -2,6 +2,7 @@ package eu.su.mas.dedaleEtu.mas.behaviours;
 
 import java.util.Queue;
 
+import eu.su.mas.dedaleEtu.mas.agents.dummies.MailBox;
 import jade.core.Agent;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -9,10 +10,10 @@ import jade.lang.acl.UnreadableException;
 
 public class treatMessageBehaviour extends SimpleBehaviour{
 	
-	public Queue<ACLMessage> mailBox;
+	public MailBox mailBox;
 	public boolean finished=false;
 	
-	public treatMessageBehaviour(final Agent myAgent,Queue<ACLMessage> mailBox) {
+	public treatMessageBehaviour(final Agent myAgent,MailBox mailBox) {
 		super(myAgent);
 		this.mailBox=mailBox;
 		
@@ -22,9 +23,9 @@ public class treatMessageBehaviour extends SimpleBehaviour{
 	public void action() {
 		// TODO Stub de la méthode généré automatiquement
 		//2.5) getMessage → answer messages in mailbox
-		System.out.println(this.myAgent.getLocalName()+" : I have "+this.mailBox.size()+" messages in mailbox");
-		while(!this.mailBox.isEmpty()) {
-			ACLMessage message = this.mailBox.poll();
+		System.out.println(this.myAgent.getLocalName()+" : I have "+this.mailBox.nbWaiting()+" messages in mailbox");
+		while(this.mailBox.hasMessage()) {
+			ACLMessage message = this.mailBox.getFirstMessage();
 			if(message!=null) {
 				switch (message.getProtocol()) {
 				case "PositionSending":
@@ -71,7 +72,7 @@ public class treatMessageBehaviour extends SimpleBehaviour{
 				//this.messageReceiver = new ReceiveMessageBehaviour(this.myAgent);
 				//this.myAgent.addBehaviour(this.messageReceiver);
 			}
-			if(this.mailBox.isEmpty()) {
+			if(!this.mailBox.hasMessage()) {
 				this.finished=true;
 			}
 			
